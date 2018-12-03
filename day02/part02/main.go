@@ -8,31 +8,27 @@ import (
 
 func main() {
 	strings, _ := readInputFile()
-	curr := ""
-	next := ""
+	a := ""
+	b := ""
 
-	curr, next = process(strings)
+	a, b = process(strings)
 
-	if curr != "" && next != "" {
-		result := stripOutDifference(curr, next)
-		fmt.Println(result)
-	}
+	fmt.Println(stripOutDifference(a, b))
 }
 
-func process(strings []string) (curr string, next string) {
-	for i := 0; i < len(strings); i++ {
+func process(strings []string) (a string, b string) {
+	for i, v := range strings {
 		if i+1 == len(strings) {
 			break
 		}
 
-		curr := strings[i]
+		a := v
 
 		for j := i + 1; j < len(strings); j++ {
-			next := strings[j]
-			res := compareStrings(curr, next)
+			b := strings[j]
 
-			if res {
-				return curr, next
+			if compareStrings(a, b) {
+				return a, b
 			}
 
 		}
@@ -41,26 +37,26 @@ func process(strings []string) (curr string, next string) {
 	return "", ""
 }
 
-func stripOutDifference(current string, test string) (res string) {
+func stripOutDifference(a string, b string) (res string) {
 	position := 0
 
-	for i := 0; i < len(current); i++ {
-		if string(current[i]) != string(test[i]) {
+	for i, v := range a {
+		if string(v) != string(b[i]) {
 			position = i
 			break
 		}
 	}
 
-	return current[:position] + current[position+1:]
+	return a[:position] + a[position+1:]
 }
 
-func compareStrings(current string, test string) (res bool) {
-	maxDiff := 1
+func compareStrings(a string, b string) (res bool) {
+	diff := 1
 
-	for i := 0; i < len(current); i++ {
-		if string(current[i]) != string(test[i]) {
-			maxDiff--
-			if maxDiff < 0 {
+	for i, v := range a {
+		if string(v) != string(b[i]) {
+			diff--
+			if diff < 0 {
 				return false
 			}
 		}

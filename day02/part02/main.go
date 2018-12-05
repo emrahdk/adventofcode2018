@@ -16,7 +16,7 @@ func main() {
 	fmt.Println(stripOutDifference(a, b))
 }
 
-func process(strings []string) (a string, b string) {
+func process(strings []string) (string, string) {
 	for i, v := range strings {
 		if i+1 == len(strings) {
 			break
@@ -37,7 +37,7 @@ func process(strings []string) (a string, b string) {
 	return "", ""
 }
 
-func stripOutDifference(a string, b string) (res string) {
+func stripOutDifference(a string, b string) string {
 	position := 0
 
 	for i, v := range a {
@@ -50,7 +50,7 @@ func stripOutDifference(a string, b string) (res string) {
 	return a[:position] + a[position+1:]
 }
 
-func compareStrings(a string, b string) (res bool) {
+func compareStrings(a string, b string) bool {
 	diff := 1
 
 	for i, v := range a {
@@ -65,7 +65,7 @@ func compareStrings(a string, b string) (res bool) {
 	return true
 }
 
-func readInputFile() (letters []string, err error) {
+func readInputFile() ([]string, error) {
 	bytes, err := ioutil.ReadFile("../input/input.txt")
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func readInputFile() (letters []string, err error) {
 	lines := strings.Split(string(bytes), "\n")
 
 	// Assign cap to avoid resize on every append.
-	letters = make([]string, 0, len(lines))
+	letters := make([]string, 0, len(lines))
 
 	for _, l := range lines {
 		if len(l) == 0 {

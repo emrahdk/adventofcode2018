@@ -19,7 +19,6 @@ func main() {
 	for _, v := range alphabet {
 		tempInput := append([]rune(nil), input...)
 		for i := 0; i < len(tempInput); i++ {
-
 			if v == tempInput[i] || v == unicode.ToUpper(tempInput[i]) {
 				tempInput = append(tempInput[:i], tempInput[i+1:]...)
 

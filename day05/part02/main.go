@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"time"
 	"unicode"
 )
@@ -13,7 +14,7 @@ func main() {
 	start := time.Now()
 	input := []rune(readInput()[0])
 	alphabet := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	alphabetMap := map[string]int{}
+	lengths := make([]int, 0)
 
 	for _, v := range alphabet {
 		tempInput := append([]rune(nil), input...)
@@ -30,17 +31,12 @@ func main() {
 			}
 		}
 
-		alphabetMap[string(v)] = dothingfrompart01(tempInput)
+		lengths = append(lengths, dothingfrompart01(tempInput))
 	}
 
-	lowestValue := int(^uint(0) >> 1)
-	for _, v := range alphabetMap {
-		if v < lowestValue {
-			lowestValue = v
-		}
-	}
+	sort.Ints(lengths)
 
-	fmt.Println(lowestValue)
+	fmt.Println(lengths[0])
 	fmt.Println(time.Since(start))
 }
 

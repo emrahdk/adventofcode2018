@@ -86,8 +86,8 @@ func main() {
 
 	for k, v := range guardsSleep {
 		hval, count := dup_count(v)
-		
-		mostSleepMinuteDups[k] = 
+
+		mostSleepMinuteDups[k] = map[int]int{hval: count}
 	}
 
 	for k, v := range mostSleepMinuteDups {

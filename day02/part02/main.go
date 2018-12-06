@@ -54,7 +54,7 @@ func compareStrings(a string, b string) bool {
 	diff := 1
 
 	for i, v := range a {
-		if string(v) != string(b[i]) {
+		if v != rune(b[i]) {
 			diff--
 			if diff < 0 {
 				return false

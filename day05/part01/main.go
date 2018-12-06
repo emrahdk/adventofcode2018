@@ -19,19 +19,30 @@ func main() {
 		if unicode.IsLower(input[i]) {
 			if input[i+1] == unicode.ToUpper(input[i]) {
 				input = append(input[:i], input[i+2:]...)
-				i = 0
+
+				next := i - 2
+				if next < -1 {
+					next = -1
+				}
+				i = next
+
 				continue
 			}
 		} else {
 			if input[i+1] == unicode.ToLower(input[i]) {
 				input = append(input[:i], input[i+2:]...)
-				i = 0
+
+				next := i - 2
+				if next < -1 {
+					next = -1
+				}
+				i = next
+
 				continue
 			}
 		}
 	}
 
-	input = input[2:] // investigate this
 	fmt.Println(len(input))
 }
 

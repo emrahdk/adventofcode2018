@@ -12,24 +12,14 @@ import (
 
 func main() {
 	coords := readInput()
-	// coords := []coord{
-	// 	coord{name: "A", x: 1, y: 1},
-	// 	coord{name: "B", x: 1, y: 6},
-	// 	coord{name: "C", x: 8, y: 3},
-	// 	coord{name: "D", x: 3, y: 4},
-	// 	coord{name: "E", x: 5, y: 5},
-	// 	coord{name: "F", x: 8, y: 9}}
 
-	allIds := []string{
-		"a",
-		"b",
-		"c",
-		"d",
-		"e",
-		"f"}
+	allIds := make([]string, 0)
+	for _, v := range coords {
+		allIds = append(allIds, strings.ToLower(v.name))
+	}
 
-	const HMAX int = 10
-	const VMAX int = 10
+	const HMAX int = 360
+	const VMAX int = 360
 
 	rect := [HMAX][VMAX]grid{}
 
@@ -59,8 +49,12 @@ func main() {
 		}
 	}
 
+	// Print map
 	// for _, v := range rect {
-	// 	fmt.Println(v)
+	// 	for _, w := range v {
+	// 		fmt.Printf("%2v", w.name)
+	// 	}
+	// 	fmt.Println()
 	// }
 
 	infinites := getInfiniteAreas(rect)
@@ -78,7 +72,7 @@ func main() {
 		for i := 0; i < VMAX; i++ {
 			for j := 0; j < HMAX; j++ {
 				if strings.ToLower(rect[i][j].name) == v {
-					areaSizes[v] += 1
+					areaSizes[v]++
 				}
 			}
 		}
@@ -104,37 +98,42 @@ func contains(s []string, e string) bool {
 }
 
 func generateTwoLetterString() string {
-
 	bytes := make([]byte, 2)
 
 	for i := 0; i < 2; i++ {
-
 		bytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
-
 	}
 
-	return string(bytes)
-
+	return strings.ToUpper(string(bytes))
 }
 
-func getInfiniteAreas(rect [10][10]grid) []string {
+func getInfiniteAreas(rect [360][360]grid) []string {
 	//infites
 	infinites := make([]string, 0)
 
 	// FIRST ROW
 	for _, v := range rect[0] {
-		infinites = append(infinites, strings.ToLower(v.name))
+		if v.name != "." {
+			infinites = append(infinites, strings.ToLower(v.name))
+		}
 	}
 
 	// LAST ROW
 	for _, v := range rect[9] {
-		infinites = append(infinites, strings.ToLower(v.name))
+		if v.name != "." {
+			infinites = append(infinites, strings.ToLower(v.name))
+		}
 	}
 
 	// FIRST AND LAST COL
-	for i := 0; i < 10; i++ {
-		infinites = append(infinites, strings.ToLower(rect[i][0].name))
-		infinites = append(infinites, strings.ToLower(rect[i][9].name))
+	for i := 0; i < 360; i++ {
+		if rect[i][0].name != "." {
+			infinites = append(infinites, strings.ToLower(rect[i][0].name))
+		}
+
+		if rect[i][9].name != "." {
+			infinites = append(infinites, strings.ToLower(rect[i][9].name))
+		}
 	}
 
 	return removeDuplicates(infinites)
@@ -176,25 +175,13 @@ type grid struct {
 
 func getCoord(id string, input string) coord {
 	c := coord{name: id}
-	fmt.Sscanf(input, "%d, #d", &c.x, &c.y)
+	fmt.Sscanf(input, "%d, %d", &c.x, &c.y)
 	return c
 }
 
-func getRandomName(coords map[string]coord) string {
-	name := generateTwoLetterString()
-	notUnique := true
-
-	for notUnique {
-		if _, ok := coords[name]; ok {
-			name = generateTwoLetterString()
-			notUnique = false
-		}
-	}
-
-	return name
-}
-
 func readInput() []coord {
+	names := []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "BB", "CC", "DD", "EE", "FF", "GG", "HH", "II", "JJ", "KK", "LL", "MM", "NN", "OO", "PP", "QQ", "RR", "SS", "TT", "UU", "VV", "WW", "XX"}
+
 	lines := make([]string, 0)
 	coordMap := map[string]coord{}
 
@@ -213,9 +200,19 @@ func readInput() []coord {
 		log.Fatal(err)
 	}
 
-	for _, v := range lines {
-		name := getRandomName(coordMap)
-		coordMap[name] = getCoord(name, v)
+	for i, v := range lines {
+		// TODO figure out why random names breaks code
+		// name := ""
+		// notUnique := true
+
+		// for notUnique {
+		// 	if _, ok := coordMap[name]; !ok {
+		// 		name = generateTwoLetterString()
+		// 		notUnique = false
+		// 	}
+		// }
+
+		coordMap[names[i]] = getCoord(names[i], v)
 	}
 
 	coords := make([]coord, 0)

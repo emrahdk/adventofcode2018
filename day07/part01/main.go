@@ -1,27 +1,47 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"sort"
 )
 
 func main() {
-	edges := readExample()
-
-	for _, v := range edges {
-		fmt.Printf("%v -> %v\n", v.from, v.to)
-	}
+	edges := readInput()
 
 	// Find all vertices
-	vertices := map[string]bool{}
+	vertexMap := map[string]bool{}
 	for _, v := range edges {
-		vertices[v.from] = true
-		vertices[v.to] = true
+		vertexMap[v.from] = true
+		vertexMap[v.to] = true
 	}
 
-	// Find vertices with no incomming edges
+	res := make([]string, 0)
+	for len(edges) > 0 {
+		vertex := getVerticesWithNoIncommingEdges(vertexMap, edges)
+		delete(vertexMap, vertex) // Visited
+		res = append(res, vertex)
+		edges = removeEdge(edges, vertex)
+
+	}
+
+	// Add last non visited vertex
+	for k := range vertexMap {
+		res = append(res, k)
+	}
+
+	// Print res
+	for _, v := range res {
+		fmt.Printf(v)
+	}
+}
+
+// Find vertices with no incomming edges
+func getVerticesWithNoIncommingEdges(notVisitedVertices map[string]bool, edges []edge) string {
 	noIncommingEdges := make([]string, 0)
-	for k, _ := range vertices {
+	for k := range notVisitedVertices {
 		found := false
 		for _, w := range edges {
 			if w.to == k {
@@ -35,45 +55,19 @@ func main() {
 		}
 	}
 
-	// SORT
 	sort.Strings(noIncommingEdges)
 
-	// BEGIN ALGO
-
-	queue := make([]string, 0)
-	queue = noIncommingEdges
-
-	for len(edges) > 0 {
-		for _, v := range queue {
-			// Find edges from C
-			verticeEdges := make([]string, 0)
-
-			for i, w := range edges {
-				if w.from == v {
-					verticeEdges = append(verticeEdges, v)
-					if len(edges) > 1 {
-						edges = append(edges[:i], edges[i+1:]...)
-					} else {
-						edges = append(edges[:i])
-					}
-				}
-			}
-
-			// ADD TO QUEUE
-			sort.Strings(verticeEdges)
-		}
-	}
-
+	return noIncommingEdges[0]
 }
-
-func getIndex(order []string, letter string) int {
-	for i, v := range order {
-		if v == letter {
-			return i
+func removeEdge(edges []edge, vertex string) []edge {
+	for i := 0; i < len(edges); i++ {
+		if edges[i].from == vertex {
+			edges = append(edges[:i], edges[i+1:]...)
+			i--
 		}
 	}
 
-	return -1
+	return edges
 }
 
 func readExample() []edge {
@@ -103,31 +97,32 @@ type edge struct {
 	to   string
 }
 
-// func readInput() map[string]string {
-// 	lines := make([]string, 0)
+func readInput() []edge {
+	lines := []string{}
 
-// 	file, err := os.Open("../input/input.txt")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer file.Close()
+	file, err := os.Open("../input/input.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-// 	scanner := bufio.NewScanner(file)
-// 	for scanner.Scan() {
-// 		lines = append(lines, scanner.Text())
-// 	}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
 
-// 	if err := scanner.Err(); err != nil {
-// 		log.Fatal(err)
-// 	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 
-// 	coords := make([]coord, 0)
+	edges := make([]edge, 0)
 
-// 	for _, v := range lines {
-// 		c := coord{}
-// 		fmt.Sscanf(v, "%d, %d", &c.x, &c.y)
-// 		coords = append(coords, c)
-// 	}
+	for _, v := range lines {
+		edge := edge{}
+		fmt.Sscanf(v, "Step %v must be finished before step %v can begin.", &edge.from, &edge.to)
 
-// 	return coords
-// }
+		edges = append(edges, edge)
+	}
+
+	return edges
+}

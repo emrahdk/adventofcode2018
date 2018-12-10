@@ -2,38 +2,68 @@ package main
 
 import (
 	"fmt"
+	"sort"
 )
 
 func main() {
-	steps := readExample()
+	edges := readExample()
 
-	for k, v := range steps {
-		fmt.Printf("%v -> %v\n", k, v)
+	for _, v := range edges {
+		fmt.Printf("%v -> %v\n", v.from, v.to)
 	}
 
-	fmt.Println(len(steps))
-	order := make([]string, 0)
+	// Find all vertices
+	vertices := map[string]bool{}
+	for _, v := range edges {
+		vertices[v.from] = true
+		vertices[v.to] = true
+	}
 
-	for k, v := range steps {
-		index := getIndex(order, k)
-		parent := 0
-
-		if index == -1 {
-			parent = 0
-		}
-
-		order[parent] = k
-
-		for _, w := range v {
-			index := getIndex(order, w)
-			if index == -1 {
-				order[parent+1] = k
+	// Find vertices with no incomming edges
+	noIncommingEdges := make([]string, 0)
+	for k, _ := range vertices {
+		found := false
+		for _, w := range edges {
+			if w.to == k {
+				found = true
+				break
 			}
 		}
 
+		if !found {
+			noIncommingEdges = append(noIncommingEdges, k)
+		}
 	}
 
-	fmt.Println(order)
+	// SORT
+	sort.Strings(noIncommingEdges)
+
+	// BEGIN ALGO
+
+	queue := make([]string, 0)
+	queue = noIncommingEdges
+
+	for len(edges) > 0 {
+		for _, v := range queue {
+			// Find edges from C
+			verticeEdges := make([]string, 0)
+
+			for i, w := range edges {
+				if w.from == v {
+					verticeEdges = append(verticeEdges, v)
+					if len(edges) > 1 {
+						edges = append(edges[:i], edges[i+1:]...)
+					} else {
+						edges = append(edges[:i])
+					}
+				}
+			}
+
+			// ADD TO QUEUE
+			sort.Strings(verticeEdges)
+		}
+	}
+
 }
 
 func getIndex(order []string, letter string) int {
@@ -46,7 +76,7 @@ func getIndex(order []string, letter string) int {
 	return -1
 }
 
-func readExample() map[string][]string {
+func readExample() []edge {
 	lines := []string{
 		"Step B must be finished before step E can begin.",
 		"Step D must be finished before step E can begin.",
@@ -56,22 +86,21 @@ func readExample() map[string][]string {
 		"Step F must be finished before step E can begin.",
 		"Step A must be finished before step D can begin."}
 
-	steps := map[string][]string{}
+	edges := make([]edge, 0)
 
 	for _, v := range lines {
-		name := ""
-		blocks := ""
-		fmt.Sscanf(v, "Step %v must be finished before step %v can begin.", &name, &blocks)
+		edge := edge{}
+		fmt.Sscanf(v, "Step %v must be finished before step %v can begin.", &edge.from, &edge.to)
 
-		if _, ok := steps[name]; ok {
-			steps[name] = append(steps[name], blocks)
-		} else {
-
-			steps[name] = []string{blocks}
-		}
+		edges = append(edges, edge)
 	}
 
-	return steps
+	return edges
+}
+
+type edge struct {
+	from string
+	to   string
 }
 
 // func readInput() map[string]string {

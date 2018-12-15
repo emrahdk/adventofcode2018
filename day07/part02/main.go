@@ -19,11 +19,11 @@ func main() {
 	}
 
 	// Requirements
-	numerOfWorkers := 5
+	availableWorkers := 5
 	workers := map[string]int{}
-	countStep := 60
-	counter := 0
+	stepTime := 60
 
+	time := 0
 	for {
 		verticesWithNoIncommingEdges := getVerticesWithNoIncommingEdges(vertexMap, edges)
 
@@ -36,16 +36,15 @@ func main() {
 		for _, v := range verticesWithNoIncommingEdges {
 			if _, ok := workers[v]; !ok {
 				reduced = append(reduced, v)
-				// verticesWithNoIncommingEdges = append(verticesWithNoIncommingEdges[:i], verticesWithNoIncommingEdges[i+1:]...) // todo figure out overflow
 			}
 		}
 
 		verticesWithNoIncommingEdges = reduced
 
 		for _, v := range verticesWithNoIncommingEdges {
-			time := int(v[0] - 64 + byte(countStep))
+			time := int(v[0] - 64 + byte(stepTime))
 
-			if len(workers) >= numerOfWorkers {
+			if len(workers) >= availableWorkers {
 				continue
 			}
 
@@ -53,14 +52,14 @@ func main() {
 
 		}
 
-		counter++
-		edges = decrementWorkers(workers, edges, vertexMap) // decrement and delete from vertexmap when time is up
+		time++
+		edges = decrementWorkersUpdateGraph(workers, edges, vertexMap)
 	}
 
-	fmt.Println(counter)
+	fmt.Println(time)
 }
 
-func decrementWorkers(workers map[string]int, edges []edge, vertexMap map[string]bool) []edge {
+func decrementWorkersUpdateGraph(workers map[string]int, edges []edge, vertexMap map[string]bool) []edge {
 	for k, v := range workers {
 		if v-1 < 1 {
 			delete(workers, k)
@@ -96,6 +95,7 @@ func getVerticesWithNoIncommingEdges(notVisitedVertices map[string]bool, edges [
 
 	return noIncommingEdges
 }
+
 func removeEdge(edges []edge, vertex string) []edge {
 	for i := 0; i < len(edges); i++ {
 		if edges[i].from == vertex {

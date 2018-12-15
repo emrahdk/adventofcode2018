@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strings"
 )
 
 func main() {
@@ -33,9 +34,8 @@ func main() {
 	}
 
 	// Print res
-	for _, v := range res {
-		fmt.Printf(v)
-	}
+	order := strings.Join(res, "")
+	fmt.Println(order)
 }
 
 // Find vertices with no incomming edges

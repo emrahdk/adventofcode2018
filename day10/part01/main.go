@@ -4,56 +4,80 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
+	"strconv"
 	"time"
 )
 
 func main() {
-	points := readExample()
+	start := time.Now()
+	points := readInput()
 
-	GRID_SIZE := 1000
-	grid := [1000][1000]string{}
-	for i := 0; i < GRID_SIZE; i++ {
-		for j := 0; j < GRID_SIZE; j++ {
-			grid[i][j] = "."
+	var maxX, maxY, gridX, gridY int
+	second := 0
+
+	for {
+		currentMaxX, currentMaxY, currentGridX, currentGridY := getGridData(points)
+
+		// dry run
+		copy := append(points[:0:0], points...)
+		for j := 0; j < len(copy); j++ {
+			current := copy[j]
+			newpoint := factorVelocity(current)
+			copy[j] = newpoint
 		}
+
+		_, _, _, nextGridY := getGridData(copy)
+
+		if currentGridY < nextGridY {
+			maxX = currentMaxX
+			maxY = currentMaxY
+			gridX = currentGridX
+			gridY = currentGridY
+			break
+		}
+
+		for j := 0; j < len(points); j++ {
+			current := points[j]
+			newpoint := factorVelocity(current)
+			points[j] = newpoint
+		}
+		second++
+	}
+
+	// Initialize grid
+	grid := make([][]string, gridY, gridY)
+	for i := 0; i < gridY; i++ {
+		grid[i] = make([]string, gridX, gridX)
 	}
 
 	for _, v := range points {
-		x, y := convert(v.position.x, v.position.y, GRID_SIZE)
+		x := v.position.x + gridX - maxX - 1
+		y := v.position.y + gridY - maxY - 1
 		grid[y][x] = "#"
 	}
 
-	// PrintGrid
+	fmt.Println("Part 1")
+	fmt.Println()
 	for _, v := range grid {
-		fmt.Println(v)
+		fmt.Printf("%1v\n", v)
 	}
 
-	for {
-		// Rest grid
-		for i := 0; i < GRID_SIZE; i++ {
-			for j := 0; j < GRID_SIZE; j++ {
-				grid[i][j] = "."
-			}
-		}
+	fmt.Println()
+	fmt.Println("Part 2")
+	fmt.Println(strconv.Itoa(second))
 
-		for i := 0; i < len(points); i++ {
-			current := points[i]
-			newpoint := factorVelocity(current)
-			points[i] = newpoint
-			x, y := convert(newpoint.position.x, newpoint.position.y, GRID_SIZE)
-			grid[y][x] = "#"
-		}
+	fmt.Println()
+	fmt.Println(time.Since(start))
+}
 
-		// PrintGrid
-		for _, v := range grid {
-			fmt.Println(v)
-		}
-		fmt.Println()
+func getGridData(points []point) (int, int, int, int) {
+	minX, minY, maxX, maxY := getMinMaxXY(points)
+	gridX := int(math.Abs(float64(minX)-float64(maxX))) + 1
+	gridY := int(math.Abs(float64(minY)-float64(maxY))) + 1
 
-		time.Sleep(time.Second)
-	}
-
+	return maxX, maxY, gridX, gridY
 }
 
 func factorVelocity(p point) point {
@@ -67,12 +91,28 @@ func factorVelocity(p point) point {
 		velocity: p.velocity}
 }
 
-func convert(x int, y int, grid int) (int, int) {
-	middle := (grid / 2) - 1
-	newX := x + middle
-	newY := y + middle
+func getMinMaxXY(points []point) (int, int, int, int) {
+	minX := int(^uint(0) >> 1)
+	minY := int(^uint(0) >> 1)
+	maxX := -int(^uint(0)>>1) - 1
+	maxY := -int(^uint(0)>>1) - 1
 
-	return newX, newY
+	for _, v := range points {
+		if v.position.x < minX {
+			minX = v.position.x
+		}
+		if v.position.y < minY {
+			minY = v.position.y
+		}
+		if v.position.x > maxX {
+			maxX = v.position.x
+		}
+		if v.position.y > maxY {
+			maxY = v.position.y
+		}
+	}
+
+	return minX, minY, maxX, maxY
 }
 
 type point struct {
